@@ -1,3 +1,11 @@
+> **Este modelo mudou de casa.** Agora ele é a ferramenta `wortic chatbot` do projeto único
+> [developer-wortic/ferramentas-rust](https://github.com/developer-wortic/ferramentas-rust) (pasta `crates/chatbot`), com o
+> histórico deste repositório, um binário só para as quatro ferramentas e jsonW em tudo. Este repositório fica
+> arquivado, só para leitura.
+>
+> *This template moved to [developer-wortic/ferramentas-rust](https://github.com/developer-wortic/ferramentas-rust)
+> (`wortic chatbot`). This repository is archived.*
+
 # Chatbot de prospecção em Rust, com a sua chave
 
 <!-- GIF -->
