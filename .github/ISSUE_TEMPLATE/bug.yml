@@ -1,0 +1,44 @@
+name: "Bug"
+description: "Algo no modelo não funciona como deveria"
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por reportar. Antes de abrir, rode `cargo test` e veja se a falha aparece.
+  - type: textarea
+    id: passos
+    attributes:
+      label: Como reproduzir
+      placeholder: |
+        1. cargo run
+        2. Abra http://127.0.0.1:8080
+        3. Cole o roteiro de exemplo e conversa
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: O que você esperava
+    validations:
+      required: true
+  - type: textarea
+    id: ocorreu
+    attributes:
+      label: O que aconteceu
+      description: Cole a mensagem de erro. Tire a chave e qualquer dado de visitante antes de colar.
+    validations:
+      required: true
+  - type: input
+    id: provedor
+    attributes:
+      label: Provedor e modelo usados
+      placeholder: "openai / gpt-6-astra"
+  - type: checkboxes
+    id: privacidade
+    attributes:
+      label: Confirmação
+      options:
+        - label: Não coloquei chave de API, e-mail, telefone ou outro dado pessoal neste relato.
+          required: true

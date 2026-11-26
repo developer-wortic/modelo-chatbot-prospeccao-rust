@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Planos Wortic (WhatsApp oficial, CRM, filas, busca de empresas)
+    url: https://wortic.com.br/planos
+    about: Recursos que não fazem parte deste projeto aberto.
+  - name: Segurança
+    url: https://github.com/developer-wortic/modelo-chatbot-prospeccao-rust/security/advisories/new
+    about: Falha de segurança entra por aqui, em privado. Veja o arquivo SECURITY.md.

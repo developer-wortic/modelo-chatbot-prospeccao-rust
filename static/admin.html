@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chatbot de prospecção</title>
+<style>
+:root{--tinta:#1d1d1f;--suave:#6e6e73;--linha:#d2d2d7;--fina:#e8e8ed;--azul:#0071e3;--erro:#b3261e;--ok:#1a7f37;--campo:#f0f7ff}
+*{box-sizing:border-box}
+html{background:#fff}
+body{margin:0;background:#fff;color:var(--tinta);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+[hidden]{display:none !important}
+main{max-width:860px;margin:0 auto;padding:48px 20px 80px}
+h1{font-size:34px;line-height:1.1;letter-spacing:-.015em;margin:0 0 6px;font-weight:600}
+h2{font-size:20px;line-height:1.25;letter-spacing:-.01em;margin:0 0 4px;font-weight:600}
+h2.secao{margin:40px 0 4px}
+.sub{color:var(--suave);margin:0 0 24px}
+.suave{color:var(--suave);font-size:14px;margin:0}
+.bloco{margin:18px 0 0;border:1px solid var(--fina);border-radius:18px;padding:24px;box-shadow:0 1px 2px rgba(0,0,0,.04);min-width:0}
+.passo{display:grid;grid-template-columns:36px minmax(0,1fr);gap:14px;padding:18px 0;border-top:1px solid var(--fina)}
+.passo:first-of-type{border-top:0;padding-top:0}
+.numero{width:32px;height:32px;border-radius:50%;background:#e8f2fd;color:var(--azul);font-weight:600;display:flex;align-items:center;justify-content:center;font-size:15px}
+.numero.feito{background:var(--ok);color:#fff}
+label{display:block;font-size:13px;color:var(--suave);margin:14px 0 6px}
+input,select,textarea{width:100%;padding:0 14px;border:1px solid var(--linha);border-radius:10px;font:inherit;color:inherit;background:#fff;min-width:0}
+input,select{height:46px}
+textarea{padding:12px 14px;min-height:360px;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--azul);outline-offset:1px;border-color:transparent}
+.linha{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.linha>div{min-width:0}
+.chave{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+.chave label{margin:0;display:flex;gap:6px;align-items:center;white-space:nowrap;font-size:14px;color:var(--suave)}
+button,.botao{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 18px;border:0;border-radius:10px;background:var(--azul);color:#fff;font:inherit;font-weight:500;cursor:pointer;text-decoration:none;white-space:nowrap}
+button.claro,.botao.claro{background:#fff;color:var(--tinta);border:1px solid var(--linha)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.acoes{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center}
+.msg{min-height:22px;margin:12px 0 0;font-size:14px;color:var(--suave)}
+.msg.erro{color:var(--erro)}
+.msg.ok{color:var(--ok)}
+a{color:var(--azul)}
+.aviso-chave{font-size:14px;margin:0 0 4px}
+.status{display:inline-block;font-size:12px;font-weight:600;border-radius:999px;padding:4px 10px;background:#fdecea;color:var(--erro)}
+.status.ok{background:#e6f4ea;color:var(--ok)}
+.gancho{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:6px}
+.cartao{border:1px solid var(--fina);border-radius:14px;padding:18px;background:#fbfbfd}
+.cartao h3{margin:0 0 6px;font-size:16px;font-weight:600}
+.cartao p{margin:0 0 12px;font-size:14px;color:var(--suave)}
+.tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.02em;color:var(--azul);background:#e8f2fd;border-radius:6px;padding:2px 6px;margin-bottom:8px}
+.tab-wrap{overflow-x:auto;margin-top:12px;border:1px solid var(--fina);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--fina);vertical-align:top;word-break:break-word}
+tr:last-child td{border-bottom:0}
+th{color:var(--suave);font-weight:500;white-space:nowrap}
+pre{background:#f5f5f7;border-radius:10px;padding:12px 14px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;margin:10px 0 0}
+@media (max-width:600px){
+  main{padding:32px 16px 64px}
+  h1{font-size:30px}
+  .bloco{padding:18px}
+  .linha,.gancho{grid-template-columns:1fr}
+  .chave{grid-template-columns:1fr}
+  button,.botao{width:100%}
+  .botao{white-space:normal;height:auto;min-height:44px;padding:10px 16px;text-align:center}
+  .acoes button,.acoes .botao{width:auto}
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Chatbot de prospecção</h1>
+  <p class="sub">Configure o seu bot em cinco passos. A chave da IA fica neste computador e não sai daqui.</p>
+
+  <section class="bloco" aria-labelledby="onboarding">
+    <h2 id="onboarding">Primeiros passos</h2>
+    <p class="suave">Status: <span id="status" class="status">sem chave</span></p>
+
+    <div class="passo">
+      <div class="numero" id="n1">1</div>
+      <div>
+        <h2>Escolher o provedor de IA</h2>
+        <p class="suave">Você paga direto ao provedor, com a sua conta. Escolha um:</p>
+        <label for="provedor">Provedor</label>
+        <select id="provedor"></select>
+        <label for="modelo">Modelo (deixe em branco para o padrão)</label>
+        <input id="modelo" autocomplete="off" placeholder="modelo padrão do provedor">
+      </div>
+    </div>
+
+    <div class="passo">
+      <div class="numero" id="n2">2</div>
+      <div>
+        <h2>Criar a chave na página oficial</h2>
+        <p class="suave">Abre a página do provedor em outra aba. Crie uma chave de API e volte para colar aqui.</p>
+        <div class="acoes">
+          <a id="link-chave" class="botao claro" target="_blank" rel="noopener noreferrer" href="#">Abrir a página de chaves</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="passo">
+      <div class="numero" id="n3">3</div>
+      <div>
+        <h2>Colar a chave</h2>
+        <p class="suave">Ela é guardada em <code>dados/configuracao.toml</code>, com permissão 600 (só o seu usuário lê). Também pode vir da variável <code>CHATBOT_CHAVE</code>.</p>
+        <label for="chave">Chave de API</label>
+        <div class="chave">
+          <input id="chave" type="password" autocomplete="off" spellcheck="false" placeholder="cole a chave aqui">
+          <label><input id="mostrar" type="checkbox" style="width:auto;height:auto"> mostrar</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="passo">
+      <div class="numero" id="n4">4</div>
+      <div>
+        <h2>Testar a chave</h2>
+        <p class="suave">Faz uma única chamada mínima ao provedor. Não grava nada.</p>
+        <div class="acoes">
+          <button id="testar" type="button">Testar chave</button>
+        </div>
+        <p id="msg-teste" class="msg" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <div class="passo">
+      <div class="numero" id="n5">5</div>
+      <div>
+        <h2>Salvar e começar</h2>
+        <p class="suave">O botão libera depois que o teste der certo.</p>
+        <div class="acoes">
+          <button id="salvar" type="button" disabled>Salvar configuração</button>
+        </div>
+        <p id="msg-salvar" class="msg" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloco" aria-labelledby="roteiro">
+    <h2 id="roteiro">Roteiro de prospecção</h2>
+    <p class="suave">Edite o texto em TOML. Diz quem é a empresa, o que vende, para quem, as perguntas de qualificação e quando passar para uma pessoa. Salve para valer na próxima conversa.</p>
+    <label for="texto-roteiro">roteiro.toml</label>
+    <textarea id="texto-roteiro" spellcheck="false"></textarea>
+    <div class="acoes">
+      <button id="salvar-roteiro" type="button">Salvar roteiro</button>
+      <button id="recarregar-roteiro" type="button" class="claro">Recarregar</button>
+    </div>
+    <p id="msg-roteiro" class="msg" aria-live="polite"></p>
+  </section>
+
+  <section class="bloco" aria-labelledby="leads">
+    <h2 id="leads">Leads</h2>
+    <p class="suave">Resumos das conversas encerradas, guardados só na memória deste processo. Ao reiniciar, a lista começa vazia.</p>
+    <div class="acoes">
+      <button id="atualizar-leads" type="button" class="claro">Atualizar lista</button>
+    </div>
+    <div class="tab-wrap">
+      <table>
+        <thead><tr><th>Nome</th><th>Contato</th><th>Interesse</th><th>Nota</th><th>Motivo</th></tr></thead>
+        <tbody id="corpo-leads"><tr><td colspan="5" class="suave">Nenhum lead ainda.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="bloco" aria-labelledby="site">
+    <h2 id="site">Colocar no seu site</h2>
+    <p class="suave">Cole esta linha no fim do HTML das páginas. Troque o endereço pelo do seu servidor com HTTPS.</p>
+    <pre id="trecho">&lt;script src="https://SEU-SERVIDOR/widget.js" defer&gt;&lt;/script&gt;</pre>
+    <p class="suave">Para outro site chamar a API, liste o domínio em <code>CHATBOT_ORIGENS</code>. Veja a <a href="/demo">página de demonstração</a>.</p>
+  </section>
+
+  <h2 class="secao">Recursos do plano Wortic</h2>
+  <p class="suave">Estes recursos não fazem parte do projeto aberto. Eles existem no plano Wortic, com a API oficial e a equipe.</p>
+  <div class="gancho">
+    <div class="cartao">
+      <span class="tag">Plano Wortic</span>
+      <h3>Atender pelo WhatsApp oficial</h3>
+      <p class="aviso-plano">Recurso pago da Wortic. Não está incluído neste projeto aberto.</p>
+      <a class="botao claro" href="https://wortic.com.br/planos" target="_blank" rel="noopener noreferrer">Ver planos</a>
+    </div>
+    <div class="cartao">
+      <span class="tag">Plano Wortic</span>
+      <h3>Mandar o lead para o CRM e o SuperVendor</h3>
+      <p class="aviso-plano">Recurso pago da Wortic. Não está incluído neste projeto aberto.</p>
+      <a class="botao claro" href="https://wortic.com.br/planos" target="_blank" rel="noopener noreferrer">Ver planos</a>
+    </div>
+    <div class="cartao">
+      <span class="tag">Plano Wortic</span>
+      <h3>Vários atendentes e filas</h3>
+      <p class="aviso-plano">Recurso pago da Wortic. Não está incluído neste projeto aberto.</p>
+      <a class="botao claro" href="https://wortic.com.br/planos" target="_blank" rel="noopener noreferrer">Ver planos</a>
+    </div>
+    <div class="cartao">
+      <span class="tag">Plano Wortic</span>
+      <h3>Achar empresas para prospectar</h3>
+      <p class="aviso-plano">Recurso pago da Wortic. Não está incluído neste projeto aberto.</p>
+      <a class="botao claro" href="https://wortic.com.br/planos" target="_blank" rel="noopener noreferrer">Ver planos</a>
+    </div>
+  </div>
+</main>
+
+<script>
+const PAGINAS = {};
+const el = (id) => document.getElementById(id);
+let testeOk = false;
+
+function aviso(alvo, texto, tipo) {
+  alvo.textContent = texto;
+  alvo.className = "msg" + (tipo ? " " + tipo : "");
+}
+
+function marcar(numero, feito) {
+  el("n" + numero).classList.toggle("feito", feito);
+}
+
+async function api(caminho, metodo, corpo) {
+  const opcoes = { method: metodo || "GET", headers: {} };
+  if (corpo !== undefined) {
+    opcoes.headers["content-type"] = "application/json";
+    opcoes.body = JSON.stringify(corpo); // borda-json: corpo enviado a esta tela para o servidor local
+  }
+  const resposta = await fetch(caminho, opcoes);
+  return { status: resposta.status, dados: await resposta.json() }; // borda-json: resposta do servidor local
+}
+
+function escolherProvedor(codigo) {
+  const sel = el("provedor");
+  const item = PAGINAS[codigo];
+  if (!item) return;
+  sel.value = codigo;
+  el("link-chave").href = item.pagina_da_chave;
+  el("link-chave").textContent = "Abrir a página de chaves da " + item.nome;
+  el("modelo").placeholder = item.modelo_padrao;
+  testeOk = false;
+  el("salvar").disabled = true;
+  marcar(2, true);
+}
+
+async function carregarConfig() {
+  const { dados } = await api("/api/config");
+  const sel = el("provedor");
+  sel.innerHTML = "";
+  for (const p of dados.provedores) {
+    PAGINAS[p.codigo] = p;
+    const opcao = document.createElement("option");
+    opcao.value = p.codigo;
+    opcao.textContent = p.nome;
+    sel.appendChild(opcao);
+  }
+  escolherProvedor(dados.provedor);
+  el("modelo").value = dados.modelo === PAGINAS[dados.provedor].modelo_padrao ? "" : dados.modelo;
+  const status = el("status");
+  status.textContent = dados.tem_chave ? "chave salva" : "sem chave";
+  status.classList.toggle("ok", dados.tem_chave);
+  marcar(3, dados.tem_chave);
+  marcar(4, dados.tem_chave);
+  marcar(5, dados.tem_chave);
+}
+
+el("provedor").addEventListener("change", (e) => escolherProvedor(e.target.value));
+el("mostrar").addEventListener("change", (e) => { el("chave").type = e.target.checked ? "text" : "password"; });
+el("chave").addEventListener("input", () => { testeOk = false; el("salvar").disabled = true; marcar(4, false); });
+
+el("testar").addEventListener("click", async () => {
+  const chave = el("chave").value.trim();
+  if (!chave) {
+    aviso(el("msg-teste"), "Cole a chave antes de testar.", "erro");
+    return;
+  }
+  el("testar").disabled = true;
+  aviso(el("msg-teste"), "Testando...");
+  const { dados } = await api("/api/testar", "POST", {
+    provedor: el("provedor").value,
+    modelo: el("modelo").value.trim(),
+    chave,
+  });
+  el("testar").disabled = false;
+  if (dados.ok) {
+    testeOk = true;
+    el("salvar").disabled = false;
+    marcar(4, true);
+    aviso(el("msg-teste"), "Chave funcionando. Agora salve a configuração.", "ok");
+  } else {
+    testeOk = false;
+    el("salvar").disabled = true;
+    marcar(4, false);
+    aviso(el("msg-teste"), dados.mensagem || "Não consegui testar a chave.", "erro");
+  }
+});
+
+el("salvar").addEventListener("click", async () => {
+  if (!testeOk) return;
+  const { status, dados } = await api("/api/chave", "POST", {
+    provedor: el("provedor").value,
+    modelo: el("modelo").value.trim(),
+    chave: el("chave").value.trim(),
+  });
+  if (status === 200) {
+    el("chave").value = "";
+    testeOk = false;
+    el("salvar").disabled = true;
+    aviso(el("msg-salvar"), "Configuração salva. O bot já responde com esta chave.", "ok");
+    await carregarConfig();
+  } else {
+    aviso(el("msg-salvar"), dados.mensagem || "Não consegui salvar.", "erro");
+  }
+});
+
+async function carregarRoteiro() {
+  const { status, dados } = await api("/api/roteiro");
+  if (status === 200) {
+    el("texto-roteiro").value = dados.toml;
+    aviso(el("msg-roteiro"), "");
+  } else {
+    aviso(el("msg-roteiro"), dados.mensagem || "Não consegui ler o roteiro.", "erro");
+  }
+}
+
+el("salvar-roteiro").addEventListener("click", async () => {
+  const { status, dados } = await api("/api/roteiro", "POST", { toml: el("texto-roteiro").value });
+  if (status === 200) {
+    aviso(el("msg-roteiro"), "Roteiro salvo. Vale para as próximas conversas.", "ok");
+  } else {
+    aviso(el("msg-roteiro"), dados.mensagem || "Roteiro com erro.", "erro");
+  }
+});
+el("recarregar-roteiro").addEventListener("click", carregarRoteiro);
+
+function celula(texto) {
+  const td = document.createElement("td");
+  td.textContent = texto;
+  return td;
+}
+
+async function carregarLeads() {
+  const { dados } = await api("/api/leads");
+  const corpo = el("corpo-leads");
+  corpo.innerHTML = "";
+  if (!dados.leads.length) {
+    corpo.innerHTML = '<tr><td colspan="5" class="suave">Nenhum lead ainda.</td></tr>';
+    return;
+  }
+  for (const lead of [...dados.leads].reverse()) {
+    const tr = document.createElement("tr");
+    tr.append(celula(lead.nome || "-"), celula(lead.contato || "-"), celula(lead.interesse || "-"), celula(String(lead.nota)), celula(lead.motivo || "-"));
+    corpo.appendChild(tr);
+  }
+}
+el("atualizar-leads").addEventListener("click", carregarLeads);
+
+carregarConfig();
+carregarRoteiro();
+carregarLeads();
+</script>
+</body>
+</html>

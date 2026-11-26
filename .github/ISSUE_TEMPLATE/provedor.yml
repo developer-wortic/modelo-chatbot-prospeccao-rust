@@ -1,0 +1,37 @@
+name: "Provedor ou modelo"
+description: "O endereço, o cabeçalho ou o formato de um provedor mudou, ou você quer outro modelo padrão"
+title: "[provedor] "
+labels: ["provedor"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Diga qual provedor e cite a página oficial da documentação que mudou. Não envie chave.
+  - type: input
+    id: provedor
+    attributes:
+      label: Provedor
+      placeholder: "anthropic"
+    validations:
+      required: true
+  - type: input
+    id: doc
+    attributes:
+      label: Página da documentação oficial
+      placeholder: "https://..."
+    validations:
+      required: true
+  - type: textarea
+    id: mudanca
+    attributes:
+      label: O que mudou
+      description: Cabeçalho, endereço, campo do corpo ou formato do streaming.
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacidade
+    attributes:
+      label: Confirmação
+      options:
+        - label: Não coloquei chave de API neste relato.
+          required: true

@@ -1,0 +1,27 @@
+# Roteiro de prospecção. Edite os textos e salve: o bot lê este arquivo em cada conversa nova.
+# Os dados são de exemplo (empresa fictícia). Troque pelos da sua empresa.
+
+[empresa]
+nome = "Loja Exemplo"
+o_que_vende = "Sistema simples de controle de estoque para lojas de bairro"
+para_quem = "Lojas de bairro com um a cinco funcionários"
+tom = "cordial e direto"
+
+[qualificacao]
+# Perguntas feitas uma de cada vez, nesta ordem (até 10).
+perguntas = [
+  "Quantas pessoas trabalham na loja hoje?",
+  "Hoje o estoque é controlado em planilha, caderno ou sistema?",
+  "Vocês já têm um valor em mente para investir nisso por mês?",
+  "Quando gostariam de começar a usar algo novo?",
+  "Quem decide a compra dessas ferramentas na loja?",
+]
+
+[humano]
+# Passa para uma pessoa da equipe quando a nota do lead (0 a 100) chegar a este valor.
+a_partir_da_nota = 70
+# Condições em que o bot passa para um humano.
+quando = [
+  "o visitante pedir para falar com uma pessoa",
+  "o visitante for quem decide e quiser começar em até 60 dias",
+]
